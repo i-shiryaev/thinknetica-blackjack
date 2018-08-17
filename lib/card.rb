@@ -33,10 +33,10 @@ class Card
 
   def suit_unicode(suit)
     case suit
-    when 'spade' then SUITS[:spade]
-    when 'heart' then SUITS[:heart]
-    when 'diamond' then SUITS[:diamond]
-    when 'club' then SUITS[:club]
+    when :spade then SUITS[:spade]
+    when :heart then SUITS[:heart]
+    when :diamond then SUITS[:diamond]
+    when :club then SUITS[:club]
     else false
     end
   end
