@@ -12,4 +12,15 @@ class Player
   def bet
     @balance -= 10
   end
+
+  def take_card(card)
+    @hand << card
+    @score += card.value
+  end
+
+  def show_hand
+    cards = []
+    @hand.each{ |card| cards << card.show }
+    cards.join(' ')
+  end
 end

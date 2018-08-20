@@ -1,5 +1,6 @@
 require_relative '../lib/deck.rb'
 require_relative '../lib/player.rb'
+require_relative '../lib/dealer.rb'
 require_relative 'output_helper.rb'
 
 class MainMenu
@@ -7,15 +8,38 @@ class MainMenu
 
   def initialize
     @deck = Deck.new
-    @player = Player.new('Player')
-    @dealer = Player.new('Dealer')
+    @dealer = Dealer.new
   end
 
-  def show_menu
-    show_message :enter_name
+  def start_game
+    create_player
+    deal_initial_cards
+    game_ui
+    dealer_hand
+    player_hand
   end
 
   private
 
-  attr_accessor :deck
+  attr_accessor :deck, :player, :dealer
+
+  def create_player
+    show_message :enter_name
+    @player = Player.new(user_input)
+  end
+
+  def game_ui
+    show_balance
+  end
+
+  def deal_initial_cards
+    2.times do
+      player.take_card(deal_card)
+      dealer.take_card(deal_card)
+    end
+  end
+
+  def deal_card
+    deck.cards.shift
+  end
 end
