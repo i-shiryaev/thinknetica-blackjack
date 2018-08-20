@@ -15,8 +15,7 @@ class MainMenu
     create_player
     deal_initial_cards
     game_ui
-    dealer_hand
-    player_hand
+    players_bet
   end
 
   private
@@ -30,6 +29,9 @@ class MainMenu
 
   def game_ui
     show_balance
+    dealer_hand
+    player_hand
+    hand_value
   end
 
   def deal_initial_cards
@@ -41,5 +43,10 @@ class MainMenu
 
   def deal_card
     deck.cards.shift
+  end
+
+  def players_bet
+    player.bet
+    dealer.bet
   end
 end

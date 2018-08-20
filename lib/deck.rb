@@ -11,11 +11,11 @@ class Deck
   private
 
   def create_deck
-    arr = (2..10).to_a
-    arr += %w(j q k a)
+    ranks = (2..10).to_a
+    ranks += %w(j q k a)
     suits = [:diamond, :heart, :diamond, :club]
 
-    arr.each do |rank|
+    ranks.each do |rank|
       suits.each do |suit|
         @cards << Card.new(rank, suit)
       end

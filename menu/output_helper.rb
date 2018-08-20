@@ -22,4 +22,8 @@ module OutputHelper
   def dealer_hand
     puts "Dealer hand: #{dealer.show_hand}"
   end
+
+  def hand_value
+    puts "Your hand's value: #{player.score}"
+  end
 end
