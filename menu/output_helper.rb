@@ -1,11 +1,14 @@
 module OutputHelper
   MESSAGES = {
-    enter_name: 'Please enter your name: ',
-    enter_another_value: 'Enter another value: ',
+    enter_name: 'Please enter your name:',
+    enter_another_value: 'Enter another value:',
     player_turn: 'Your turn:',
     dealer_turn: 'Dealer turn:',
     dealer_take_card: 'Dealer decided to take a card.',
-    dealer_pass: 'Dealer decided to pass'
+    dealer_pass: 'Dealer decided to pass',
+    another_game: 'Do you want to start another game?',
+    another_round: 'Do you want to start another round?',
+    thank_you: 'Thank you for playing.'
   }
 
   def message(message)
@@ -34,6 +37,11 @@ module OutputHelper
 
   def dealer_hand_value
     puts "Dealer hand's value: #{dealer.score}"
+  end
+
+  def show_error(error)
+    puts error.message
+    message :enter_another_value
   end
 
   def player_options

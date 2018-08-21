@@ -7,35 +7,62 @@ class MainMenu
   include OutputHelper
 
   def initialize
-    @deck = Deck.new
     @dealer = Dealer.new
   end
 
   def start_game
     create_player
-    deal_initial_cards
-    game_ui
-    players_bet
-    player_turn
+    gameplay_loop
   end
 
   private
 
   attr_accessor :deck, :player, :dealer
 
+  def gameplay_loop
+    another_round = true
+    while player.balance > 0 && dealer.balance > 0 && another_round
+      game_round
+      another_round = another_round?
+      exit unless another_round
+    end
+    another_game? ? start_game : exit
+  end
+
+  def another_game?
+    message :another_game
+    check_user_input(%w[y n]) == 'y' ? true : false
+  end
+
+  def another_round?
+    message :another_round
+    check_user_input(%w[y n]) == 'y' ? true : false
+  end
+
+  def game_round
+    prepare_round
+    deal_initial_cards
+    game_ui
+    players_bet
+    player_turn
+  end
+
   def create_player
     message :enter_name
-    @player = Player.new(user_input)
+    name = user_input
+    begin
+      @player = Player.new(name)
+    rescue StandardError => e
+      show_error(e)
+      name = user_input
+      retry
+    end
   end
 
   def player_turn
     message :player_turn
     player_options
-    input = user_input
-    until valid_input?(input)
-      message :enter_another_value
-      input = user_input
-    end
+    input = check_user_input(%w[1 2 3])
     case input
     when '1' then skip_turn
     when '2' then add_card
@@ -73,8 +100,17 @@ class MainMenu
     end
   end
 
-  def valid_input?(input)
-    %w[1 2 3].include?(input)
+  def check_user_input(options)
+    input = user_input
+    until valid_input?(options, input)
+      message :enter_another_value
+      input = user_input
+    end
+    input
+  end
+
+  def valid_input?(options, input)
+    options.include?(input)
   end
 
   def game_ui
@@ -98,5 +134,13 @@ class MainMenu
   def players_bet
     player.bet
     dealer.bet
+  end
+
+  def prepare_round
+    @deck = Deck.new
+    player.clear_hand!
+    player.clear_score!
+    dealer.clear_hand!
+    dealer.clear_score!
   end
 end

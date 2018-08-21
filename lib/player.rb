@@ -6,6 +6,7 @@ class Player
     @balance = 100
     @hand = []
     @score = 0
+    validate!
   end
 
   def bet
@@ -13,7 +14,7 @@ class Player
   end
 
   def take_card(card)
-    card.rank == 'a' ? value = card.value : value = manage_ace_value
+    card.rank == 'a' ? value = manage_ace_value : value = card.value
     @hand << card
     @score += card.value
   end
@@ -24,13 +25,21 @@ class Player
     cards.join(' ')
   end
 
-  def reset_score!
+  def clear_score!
     @score = 0
+  end
+
+  def clear_hand!
+    @hand = []
   end
 
   private
 
   def manage_ace_value
     score + 11 > 21 ? 1 : 11
+  end
+
+  def validate!
+    raise 'Name should not be empty.' if @name.empty?
   end
 end
