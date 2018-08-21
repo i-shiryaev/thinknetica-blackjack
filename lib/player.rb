@@ -15,14 +15,14 @@ class Player
   end
 
   def take_card(card)
-    card.rank == 'a' ? value = manage_ace_value : value = card.value
+    value = card.rank == 'a' ? manage_ace_value : card.value
     @hand << card
-    @score += card.value
+    @score += value
   end
 
   def show_hand
     cards = []
-    @hand.each{ |card| cards << card.show }
+    @hand.each { |card| cards << card.show }
     cards.join(' ')
   end
 
@@ -36,10 +36,18 @@ class Player
     @finished = true
   end
 
+  def won!
+    @balance += 20
+  end
+
+  def return_money!
+    @balance += 10
+  end
+
   private
 
   def manage_ace_value
-    score + 11 > 21 ? 1 : 11
+    score + 11 > 21 && score + 1 < 21 ? 1 : 11
   end
 
   def validate!

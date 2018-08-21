@@ -24,19 +24,22 @@ class MainMenu
     while player.balance > 0 && dealer.balance > 0 && another_round
       game_round
       another_round = another_round?
-      exit unless another_round
+      break unless another_round
     end
     another_game? ? start_game : exit
   end
 
   def another_game?
     message :another_game
-    check_user_input(%w[y n]) == 'y' ? true : false
+    message :yes_or_no
+    check_user_input(%w[y n]) == 'y'
   end
 
   def another_round?
+    return false if player.balance.zero? || dealer.balance.zero?
     message :another_round
-    check_user_input(%w[y n]) == 'y' ? true : false
+    message :yes_or_no
+    check_user_input(%w[y n]) == 'y'
   end
 
   def game_round
@@ -44,10 +47,9 @@ class MainMenu
     deal_initial_cards
     game_ui
     players_bet
-    until player.finished && dealer.finished do
-      game_turn
-    end
+    game_turn until player.finished && dealer.finished
     open_cards
+    decide_winner
   end
 
   def game_turn
@@ -67,6 +69,42 @@ class MainMenu
     end
   end
 
+  def decide_winner
+    if busted?(player.score)
+      message :busted
+      player_lost
+    elsif busted?(dealer.score)
+      message :dealer_busted
+      player_won
+    elsif player.score == dealer.score
+      draw
+    elsif player.score > dealer.score
+      player_won
+    else
+      player_lost
+    end
+  end
+
+  def player_won
+    message :player_won
+    player.won!
+  end
+
+  def player_lost
+    message :player_lost
+    dealer.won!
+  end
+
+  def draw
+    message :draw
+    player.return_money!
+    dealer.return_money!
+  end
+
+  def busted?(score)
+    score > 21
+  end
+
   def player_turn
     message :player_turn
     player_options
@@ -74,9 +112,14 @@ class MainMenu
     case input
     when '1' then skip_turn
     when '2' then add_card
-    when '3' then player.finish_round!
+    when '3' then force_open_cards
     else message :enter_another_value
     end
+  end
+
+  def force_open_cards
+    player.finish_round!
+    dealer.finish_round!
   end
 
   def skip_turn
@@ -86,6 +129,10 @@ class MainMenu
 
   def add_card
     player.take_card(deal_card)
+    if busted?(player.score) || player.score == 21
+      player.finish_round!
+      return false
+    end
     player_hand
     player_hand_value
   end
@@ -99,8 +146,12 @@ class MainMenu
   end
 
   def dealer_turn
+    if busted?(player.score)
+      dealer.finish_round!
+      return false
+    end
     message :dealer_turn
-    if dealer.score < 17
+    if dealer.score <= 17
       message :dealer_take_card
       dealer.take_card(deal_card)
     else
@@ -147,6 +198,7 @@ class MainMenu
 
   def prepare_round
     @deck = Deck.new
+    dealer.close_hand!
     player.prepare_for_round
     dealer.prepare_for_round
   end

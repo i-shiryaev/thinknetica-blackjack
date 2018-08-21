@@ -12,8 +12,8 @@ class Deck
 
   def create_deck
     ranks = (2..10).to_a
-    ranks += %w(j q k a)
-    suits = [:diamond, :heart, :diamond, :club]
+    ranks += %w[j q k a]
+    suits = %i[diamond heart diamond club]
 
     ranks.each do |rank|
       suits.each do |suit|

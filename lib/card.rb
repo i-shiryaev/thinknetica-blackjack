@@ -9,7 +9,7 @@ class Card
   end
 
   def show
-    @rank.is_a?(String) ? card_rank = @rank.capitalize : card_rank = @rank
+    card_rank = @rank.is_a?(String) ? @rank.capitalize : @rank
     "#{card_rank}#{@suit_unicode}"
   end
 
@@ -20,12 +20,12 @@ class Card
     heart: "\u2665",
     diamond: "\u2666",
     club: "\u2663"
-  }
+  }.freeze
 
   VALUES = {
     2 => 2, 3 => 3, 4 => 4, 5 => 5, 6 => 6, 7 => 7, 8 => 8, 9 => 9, 10 => 10,
     'j' => 10, 'q' => 10, 'k' => 10, 'a' => 11
-  }
+  }.freeze
 
   def card_value(rank)
     VALUES[rank]

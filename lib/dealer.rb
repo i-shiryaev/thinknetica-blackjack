@@ -14,4 +14,8 @@ class Dealer < Player
   def open_hand!
     @hidden_hand = false
   end
+
+  def close_hand!
+    @hidden_hand = true
+  end
 end

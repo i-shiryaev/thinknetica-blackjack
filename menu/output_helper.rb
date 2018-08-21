@@ -5,11 +5,17 @@ module OutputHelper
     player_turn: 'Your turn:',
     dealer_turn: 'Dealer turn:',
     dealer_take_card: 'Dealer decided to take a card.',
-    dealer_pass: 'Dealer decided to pass',
+    dealer_pass: 'Dealer decided to pass.',
     another_game: 'Do you want to start another game?',
     another_round: 'Do you want to start another round?',
-    thank_you: 'Thank you for playing.'
-  }
+    thank_you: 'Thank you for playing.',
+    yes_or_no: '[y]es / [n]o?',
+    busted: 'Busted!',
+    dealer_busted: 'Dealer got busted.',
+    player_won: 'You won!',
+    player_lost: "You've lost!",
+    draw: "It's a draw!"
+  }.freeze
 
   def message(message)
     puts MESSAGES[message]
