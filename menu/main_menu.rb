@@ -44,7 +44,15 @@ class MainMenu
     deal_initial_cards
     game_ui
     players_bet
-    player_turn
+    until player.finished && dealer.finished do
+      game_turn
+    end
+    open_cards
+  end
+
+  def game_turn
+    player_turn unless player.finished
+    dealer_turn unless dealer.finished
   end
 
   def create_player
@@ -66,14 +74,14 @@ class MainMenu
     case input
     when '1' then skip_turn
     when '2' then add_card
-    when '3' then open_cards
+    when '3' then player.finish_round!
     else message :enter_another_value
     end
   end
 
   def skip_turn
     player_skipped_turn
-    dealer_turn
+    player.finish_round!
   end
 
   def add_card
@@ -97,6 +105,7 @@ class MainMenu
       dealer.take_card(deal_card)
     else
       message :dealer_pass
+      dealer.finish_round!
     end
   end
 
@@ -138,9 +147,7 @@ class MainMenu
 
   def prepare_round
     @deck = Deck.new
-    player.clear_hand!
-    player.clear_score!
-    dealer.clear_hand!
-    dealer.clear_score!
+    player.prepare_for_round
+    dealer.prepare_for_round
   end
 end

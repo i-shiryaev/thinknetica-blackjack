@@ -1,11 +1,12 @@
 class Player
-  attr_reader :name, :balance, :hand, :score
+  attr_reader :name, :balance, :hand, :score, :finished
 
   def initialize(name)
     @name = name
     @balance = 100
     @hand = []
     @score = 0
+    @finished = false
     validate!
   end
 
@@ -25,12 +26,14 @@ class Player
     cards.join(' ')
   end
 
-  def clear_score!
-    @score = 0
+  def prepare_for_round
+    @finished = false
+    clear_score!
+    clear_hand!
   end
 
-  def clear_hand!
-    @hand = []
+  def finish_round!
+    @finished = true
   end
 
   private
@@ -41,5 +44,13 @@ class Player
 
   def validate!
     raise 'Name should not be empty.' if @name.empty?
+  end
+
+  def clear_score!
+    @score = 0
+  end
+
+  def clear_hand!
+    @hand = []
   end
 end
