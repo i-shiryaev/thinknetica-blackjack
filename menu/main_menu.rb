@@ -16,6 +16,7 @@ class MainMenu
     deal_initial_cards
     game_ui
     players_bet
+    player_turn
   end
 
   private
@@ -23,15 +24,64 @@ class MainMenu
   attr_accessor :deck, :player, :dealer
 
   def create_player
-    show_message :enter_name
+    message :enter_name
     @player = Player.new(user_input)
+  end
+
+  def player_turn
+    message :player_turn
+    player_options
+    input = user_input
+    until valid_input?(input)
+      message :enter_another_value
+      input = user_input
+    end
+    case input
+    when '1' then skip_turn
+    when '2' then add_card
+    when '3' then open_cards
+    else message :enter_another_value
+    end
+  end
+
+  def skip_turn
+    player_skipped_turn
+    dealer_turn
+  end
+
+  def add_card
+    player.take_card(deal_card)
+    player_hand
+    player_hand_value
+  end
+
+  def open_cards
+    dealer.open_hand!
+    player_hand
+    player_hand_value
+    dealer_hand
+    dealer_hand_value
+  end
+
+  def dealer_turn
+    message :dealer_turn
+    if dealer.score < 17
+      message :dealer_take_card
+      dealer.take_card(deal_card)
+    else
+      message :dealer_pass
+    end
+  end
+
+  def valid_input?(input)
+    %w[1 2 3].include?(input)
   end
 
   def game_ui
     show_balance
     dealer_hand
     player_hand
-    hand_value
+    player_hand_value
   end
 
   def deal_initial_cards

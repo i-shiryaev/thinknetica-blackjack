@@ -10,4 +10,8 @@ class Dealer < Player
     return '* ' * @hand.size if hidden_hand
     super
   end
+
+  def open_hand!
+    @hidden_hand = false
+  end
 end

@@ -1,9 +1,14 @@
 module OutputHelper
   MESSAGES = {
-    enter_name: 'Please enter your name: '
+    enter_name: 'Please enter your name: ',
+    enter_another_value: 'Enter another value: ',
+    player_turn: 'Your turn:',
+    dealer_turn: 'Dealer turn:',
+    dealer_take_card: 'Dealer decided to take a card.',
+    dealer_pass: 'Dealer decided to pass'
   }
 
-  def show_message(message)
+  def message(message)
     puts MESSAGES[message]
   end
 
@@ -23,7 +28,22 @@ module OutputHelper
     puts "Dealer hand: #{dealer.show_hand}"
   end
 
-  def hand_value
+  def player_hand_value
     puts "Your hand's value: #{player.score}"
+  end
+
+  def dealer_hand_value
+    puts "Dealer hand's value: #{dealer.score}"
+  end
+
+  def player_options
+    puts '1 - to skip a turn'
+    puts '2 - to add a card'
+    puts '3 - to open cards'
+    print '> '
+  end
+
+  def player_skipped_turn
+    puts "#{player.name} decided to skip a turn. Total score: #{player.score}"
   end
 end
