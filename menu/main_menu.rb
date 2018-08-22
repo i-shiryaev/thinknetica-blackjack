@@ -1,12 +1,13 @@
 require_relative '../lib/deck.rb'
 require_relative '../lib/player.rb'
 require_relative '../lib/dealer.rb'
+require_relative '../lib/bank.rb'
 require_relative 'output_helper.rb'
 
 class MainMenu
-  include OutputHelper
-
   def initialize
+    @helper = OutputHelper.new
+    @bank = Bank.new
     @dealer = Dealer.new
   end
 
@@ -18,10 +19,11 @@ class MainMenu
   private
 
   attr_accessor :deck, :player, :dealer
+  attr_reader :helper, :bank
 
   def gameplay_loop
     another_round = true
-    while player.balance > 0 && dealer.balance > 0 && another_round
+    while bank.player_balance > 0 && bank.dealer_balance > 0 && another_round
       game_round
       another_round = another_round?
       break unless another_round
@@ -30,23 +32,23 @@ class MainMenu
   end
 
   def another_game?
-    message :another_game
-    message :yes_or_no
-    check_user_input(%w[y n]) == 'y'
+    helper.message :another_game
+    helper.message :yes_or_no
+    helper.check_user_input(%w[y n]) == 'y'
   end
 
   def another_round?
-    return false if player.balance.zero? || dealer.balance.zero?
-    message :another_round
-    message :yes_or_no
-    check_user_input(%w[y n]) == 'y'
+    return false if bank.player_balance.zero? || bank.dealer_balance.zero?
+    helper.message :another_round
+    helper.message :yes_or_no
+    helper.check_user_input(%w[y n]) == 'y'
   end
 
   def game_round
     prepare_round
     deal_initial_cards
-    game_ui
-    players_bet
+    helper.game_ui(player, dealer, bank)
+    bank.bet
     game_turn until player.finished && dealer.finished
     open_cards
     decide_winner
@@ -58,27 +60,28 @@ class MainMenu
   end
 
   def create_player
-    message :enter_name
-    name = user_input
+    helper.message :enter_name
+    name = helper.user_input
     begin
       @player = Player.new(name)
     rescue StandardError => e
       show_error(e)
-      name = user_input
+      name = helper.user_input
       retry
     end
+    bank.reset_player_balance!
   end
 
   def decide_winner
-    if busted?(player.score)
-      message :busted
+    if busted?(bank.player_score)
+      helper.message :busted
       player_lost
-    elsif busted?(dealer.score)
-      message :dealer_busted
+    elsif busted?(bank.dealer_score)
+      helper.message :dealer_busted
       player_won
-    elsif player.score == dealer.score
+    elsif bank.player_score == bank.dealer_score
       draw
-    elsif player.score > dealer.score
+    elsif bank.player_score > bank.dealer_score
       player_won
     else
       player_lost
@@ -86,19 +89,18 @@ class MainMenu
   end
 
   def player_won
-    message :player_won
-    player.won!
+    helper.message :player_won
+    bank.player_won
   end
 
   def player_lost
-    message :player_lost
-    dealer.won!
+    helper.message :player_lost
+    bank.dealer_won
   end
 
   def draw
-    message :draw
-    player.return_money!
-    dealer.return_money!
+    helper.message :draw
+    bank.return_money!
   end
 
   def busted?(score)
@@ -106,9 +108,9 @@ class MainMenu
   end
 
   def player_turn
-    message :player_turn
-    player_options
-    input = check_user_input(%w[1 2 3])
+    helper.message :player_turn
+    helper.player_options
+    input = helper.check_user_input(%w[1 2 3])
     case input
     when '1' then skip_turn
     when '2' then add_card
@@ -123,67 +125,53 @@ class MainMenu
   end
 
   def skip_turn
-    player_skipped_turn
+    helper.player_skipped_turn(player)
     player.finish_round!
   end
 
   def add_card
-    player.take_card(deal_card)
-    if busted?(player.score) || player.score == 21
+    player.take_card(deal_card, bank.player_score, bank)
+    if busted?(bank.player_score) || bank.player_score >= 20
       player.finish_round!
       return false
     end
-    player_hand
-    player_hand_value
+    helper.player_hand(player)
+    helper.player_hand_value(player, bank.player_score)
   end
 
   def open_cards
     dealer.open_hand!
-    player_hand
-    player_hand_value
-    dealer_hand
-    dealer_hand_value
+    helper.player_hand(player)
+    helper.player_hand_value(player, bank.player_score)
+    helper.player_hand(dealer)
+    helper.dealer_hand_value(bank.dealer_score)
   end
 
   def dealer_turn
-    if busted?(player.score)
+    if busted?(bank.player_score)
       dealer.finish_round!
       return false
     end
-    message :dealer_turn
-    if dealer.score <= 17
-      message :dealer_take_card
-      dealer.take_card(deal_card)
+    helper.message :dealer_turn
+    if bank.dealer_score > bank.player_score && player.finished
+      dealer_passed
+    elsif bank.dealer_score <= 17
+      helper.message :dealer_take_card
+      dealer.take_card(deal_card, bank.dealer_score, bank)
     else
-      message :dealer_pass
-      dealer.finish_round!
+      dealer_passed
     end
   end
 
-  def check_user_input(options)
-    input = user_input
-    until valid_input?(options, input)
-      message :enter_another_value
-      input = user_input
-    end
-    input
-  end
-
-  def valid_input?(options, input)
-    options.include?(input)
-  end
-
-  def game_ui
-    show_balance
-    dealer_hand
-    player_hand
-    player_hand_value
+  def dealer_passed
+    helper.message :dealer_pass
+    dealer.finish_round!
   end
 
   def deal_initial_cards
     2.times do
-      player.take_card(deal_card)
-      dealer.take_card(deal_card)
+      player.take_card(deal_card, bank.player_score, bank)
+      dealer.take_card(deal_card, bank.dealer_score, bank)
     end
   end
 
@@ -191,15 +179,11 @@ class MainMenu
     deck.cards.shift
   end
 
-  def players_bet
-    player.bet
-    dealer.bet
-  end
-
   def prepare_round
     @deck = Deck.new
     dealer.close_hand!
     player.prepare_for_round
     dealer.prepare_for_round
+    bank.clear_score!
   end
 end
