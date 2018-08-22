@@ -1,23 +1,17 @@
+require_relative 'hand.rb'
+
 class Player
   attr_reader :name, :balance, :hand, :score, :finished
 
   def initialize(name)
     @name = name
-    @hand = []
+    create_hand
     @finished = false
     validate!
   end
 
-  def take_card(card, score, bank)
-    value = card.rank == 'a' ? manage_ace_value(score) : card.value
-    @hand << card
-    name == 'Dealer' ? bank.increase_dealer_score(value) : bank.increse_player_score(value)
-  end
-
-  def show_hand
-    cards = []
-    @hand.each { |card| cards << card.show }
-    cards.join(' ')
+  def take_card(card)
+    @hand.add_card(card)
   end
 
   def prepare_for_round
@@ -31,15 +25,19 @@ class Player
 
   private
 
-  def manage_ace_value(score)
-    score + 11 > 21 && score + 1 < 21 ? 1 : 11
-  end
-
   def validate!
     raise 'Name should not be empty.' if @name.empty?
   end
 
   def clear_hand!
-    @hand = []
+    create_hand
+  end
+
+  def is_dealer?(name)
+    name == 'Dealer'
+  end
+
+  def create_hand
+    @hand = is_dealer?(@name) ? Hand.new(true) : Hand.new(false)
   end
 end

@@ -73,15 +73,15 @@ class MainMenu
   end
 
   def decide_winner
-    if busted?(bank.player_score)
+    if busted?(player.hand.score)
       helper.message :busted
       player_lost
-    elsif busted?(bank.dealer_score)
+    elsif busted?(dealer.hand.score)
       helper.message :dealer_busted
       player_won
-    elsif bank.player_score == bank.dealer_score
+    elsif player.hand.score == dealer.hand.score
       draw
-    elsif bank.player_score > bank.dealer_score
+    elsif player.hand.score > dealer.hand.score
       player_won
     else
       player_lost
@@ -130,34 +130,38 @@ class MainMenu
   end
 
   def add_card
-    player.take_card(deal_card, bank.player_score, bank)
-    if busted?(bank.player_score) || bank.player_score >= 20
+    player.take_card(deal_card)
+    if busted?(player.hand.score) || player.hand.score >= 20
       player.finish_round!
       return false
     end
     helper.player_hand(player)
-    helper.player_hand_value(player, bank.player_score)
+    helper.player_hand_value(player)
   end
 
   def open_cards
     dealer.open_hand!
     helper.player_hand(player)
-    helper.player_hand_value(player, bank.player_score)
+    helper.player_hand_value(player)
     helper.player_hand(dealer)
-    helper.dealer_hand_value(bank.dealer_score)
+    helper.player_hand_value(dealer)
   end
 
   def dealer_turn
-    if busted?(bank.player_score)
+    if busted?(player.hand.score)
       dealer.finish_round!
       return false
     end
     helper.message :dealer_turn
-    if bank.dealer_score > bank.player_score && player.finished
+    dealer_decision
+  end
+
+  def dealer_decision
+    if dealer.hand.score > player.hand.score && player.finished
       dealer_passed
-    elsif bank.dealer_score <= 17
+    elsif dealer.hand.score <= 17
       helper.message :dealer_take_card
-      dealer.take_card(deal_card, bank.dealer_score, bank)
+      dealer.take_card(deal_card)
     else
       dealer_passed
     end
@@ -170,8 +174,8 @@ class MainMenu
 
   def deal_initial_cards
     2.times do
-      player.take_card(deal_card, bank.player_score, bank)
-      dealer.take_card(deal_card, bank.dealer_score, bank)
+      player.take_card(deal_card)
+      dealer.take_card(deal_card)
     end
   end
 
@@ -181,9 +185,7 @@ class MainMenu
 
   def prepare_round
     @deck = Deck.new
-    dealer.close_hand!
     player.prepare_for_round
     dealer.prepare_for_round
-    bank.clear_score!
   end
 end

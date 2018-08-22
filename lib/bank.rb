@@ -1,12 +1,10 @@
 class Bank
-  attr_reader :player_balance, :dealer_balance, :player_score, :dealer_score
+  attr_reader :player_balance, :dealer_balance
 
   INITIAL_BALANCE = 100
 
   def initialize
     @dealer_balance = INITIAL_BALANCE
-    @player_score = 0
-    @dealer_score = 0
   end
 
   def bet
@@ -19,25 +17,12 @@ class Bank
     @dealer_balance += 10
   end
 
-  def increse_player_score(score)
-    @player_score += score
-  end
-
-  def increase_dealer_score(score)
-    @dealer_score += score
-  end
-
   def player_won
     @player_balance += 20
   end
 
   def dealer_won
     @dealer_balance += 20
-  end
-
-  def clear_score!
-    @player_score = 0
-    @dealer_score = 0
   end
 
   def reset_player_balance!

@@ -11,16 +11,22 @@ class OutputHelper
     puts "#{player.name}: #{bank.player_balance}$ | Dealer: #{bank.dealer_balance}$"
   end
 
+  def show_hand(hand)
+    if hand.closed?
+      '* ' * hand.cards.size
+    else
+      cards = []
+      hand.cards.each { |card| cards << card.show }
+      cards.join(' ')
+    end
+  end
+
   def player_hand(player)
-    puts "#{player.name} hand: #{player.show_hand}"
+    puts "#{player.name} hand: #{show_hand(player.hand)}"
   end
 
-  def player_hand_value(player, score)
-    puts "#{player.name}'s' hand value: #{score}"
-  end
-
-  def dealer_hand_value(score)
-    puts "Dealer's' hand value: #{score}"
+  def player_hand_value(player)
+    puts "#{player.name}'s' hand value: #{player.hand.score}"
   end
 
   def show_error(error)
@@ -36,14 +42,14 @@ class OutputHelper
   end
 
   def player_skipped_turn(player)
-    puts "#{player.name} decided to skip a turn. Total score: #{player.score}"
+    puts "#{player.name} decided to skip a turn. Total score: #{player.hand.score}"
   end
 
   def game_ui(player, dealer, bank)
     show_balance(player, bank)
     player_hand(dealer)
     player_hand(player)
-    player_hand_value(player, bank.player_score)
+    player_hand_value(player)
   end
 
   def check_user_input(options)
