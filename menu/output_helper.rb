@@ -7,8 +7,8 @@ class OutputHelper
     gets.chomp
   end
 
-  def show_balance(player, bank)
-    puts "#{player.name}: #{bank.player_balance}$ | Dealer: #{bank.dealer_balance}$"
+  def show_balance(player, dealer)
+    puts "#{player.name}: #{player.balance}$ | Dealer: #{dealer.balance}$"
   end
 
   def show_hand(hand)
@@ -22,7 +22,7 @@ class OutputHelper
   end
 
   def player_hand(player)
-    puts "#{player.name} hand: #{show_hand(player.hand)}"
+    puts "#{player.name}'s' hand: #{show_hand(player.hand)}"
   end
 
   def player_hand_value(player)
@@ -46,7 +46,7 @@ class OutputHelper
   end
 
   def game_ui(player, dealer, bank)
-    show_balance(player, bank)
+    show_balance(player, dealer)
     player_hand(dealer)
     player_hand(player)
     player_hand_value(player)

@@ -19,11 +19,11 @@ class MainMenu
   private
 
   attr_accessor :deck, :player, :dealer
-  attr_reader :helper, :bank
+  attr_reader :helper, :bank, :player_finished, :dealer_finished
 
   def gameplay_loop
     another_round = true
-    while bank.player_balance > 0 && bank.dealer_balance > 0 && another_round
+    while player.balance > 0 && dealer.balance > 0 && another_round
       game_round
       another_round = another_round?
       break unless another_round
@@ -38,7 +38,7 @@ class MainMenu
   end
 
   def another_round?
-    return false if bank.player_balance.zero? || bank.dealer_balance.zero?
+    return false if player.balance.zero? || dealer.balance.zero?
     helper.message :another_round
     helper.message :yes_or_no
     helper.check_user_input(%w[y n]) == 'y'
@@ -48,15 +48,15 @@ class MainMenu
     prepare_round
     deal_initial_cards
     helper.game_ui(player, dealer, bank)
-    bank.bet
-    game_turn until player.finished && dealer.finished
+    bank.make_bets(player, dealer)
+    game_turn until player_finished && dealer_finished
     open_cards
     decide_winner
   end
 
   def game_turn
-    player_turn unless player.finished
-    dealer_turn unless dealer.finished
+    player_turn unless player_finished
+    dealer_turn unless dealer_finished
   end
 
   def create_player
@@ -69,7 +69,6 @@ class MainMenu
       name = helper.user_input
       retry
     end
-    bank.reset_player_balance!
   end
 
   def decide_winner
@@ -90,17 +89,17 @@ class MainMenu
 
   def player_won
     helper.message :player_won
-    bank.player_won
+    bank.win(player)
   end
 
   def player_lost
     helper.message :player_lost
-    bank.dealer_won
+    bank.win(dealer)
   end
 
   def draw
     helper.message :draw
-    bank.return_money!
+    bank.undo_bets(player, dealer)
   end
 
   def busted?(score)
@@ -120,19 +119,19 @@ class MainMenu
   end
 
   def force_open_cards
-    player.finish_round!
-    dealer.finish_round!
+    player_finish_turn
+    dealer_finish_turn
   end
 
   def skip_turn
     helper.player_skipped_turn(player)
-    player.finish_round!
+    player_finish_turn
   end
 
   def add_card
     player.take_card(deal_card)
     if busted?(player.hand.score) || player.hand.score >= 20
-      player.finish_round!
+      player_finish_turn
       return false
     end
     helper.player_hand(player)
@@ -149,7 +148,7 @@ class MainMenu
 
   def dealer_turn
     if busted?(player.hand.score)
-      dealer.finish_round!
+      dealer_finish_turn
       return false
     end
     helper.message :dealer_turn
@@ -157,7 +156,7 @@ class MainMenu
   end
 
   def dealer_decision
-    if dealer.hand.score > player.hand.score && player.finished
+    if dealer.hand.score > player.hand.score && player_finished
       dealer_passed
     elsif dealer.hand.score <= 17
       helper.message :dealer_take_card
@@ -169,7 +168,7 @@ class MainMenu
 
   def dealer_passed
     helper.message :dealer_pass
-    dealer.finish_round!
+    dealer_finish_turn
   end
 
   def deal_initial_cards
@@ -177,6 +176,7 @@ class MainMenu
       player.take_card(deal_card)
       dealer.take_card(deal_card)
     end
+    player_finish_turn if player.hand.score >= 20
   end
 
   def deal_card
@@ -185,7 +185,17 @@ class MainMenu
 
   def prepare_round
     @deck = Deck.new
+    @player_finished = false
+    @dealer_finished = false
     player.prepare_for_round
     dealer.prepare_for_round
+  end
+
+  def player_finish_turn
+    @player_finished = true
+  end
+
+  def dealer_finish_turn
+    @dealer_finished = true
   end
 end

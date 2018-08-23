@@ -1,31 +1,30 @@
 class Bank
-  attr_reader :player_balance, :dealer_balance
-
-  INITIAL_BALANCE = 100
+  BET = 10
 
   def initialize
-    @dealer_balance = INITIAL_BALANCE
+    @prize_money = 0
   end
 
-  def bet
-    @player_balance -= 10
-    @dealer_balance -= 10
+  def make_bets(player, dealer)
+    player.make_bet(BET)
+    dealer.make_bet(BET)
+    @prize_money += BET * 2
   end
 
-  def return_money!
-    @player_balance += 10
-    @dealer_balance += 10
+  def undo_bets(player, dealer)
+    player.undo_bet(BET)
+    dealer.undo_bet(BET)
+    clear_bank!
   end
 
-  def player_won
-    @player_balance += 20
+  def win(player)
+    player.take_money(@prize_money)
+    clear_bank!
   end
 
-  def dealer_won
-    @dealer_balance += 20
-  end
+  private
 
-  def reset_player_balance!
-    @player_balance = INITIAL_BALANCE
+  def clear_bank!
+    @prize_money = 0
   end
 end

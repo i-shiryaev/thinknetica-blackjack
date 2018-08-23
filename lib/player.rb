@@ -3,9 +3,12 @@ require_relative 'hand.rb'
 class Player
   attr_reader :name, :balance, :hand, :score, :finished
 
+  INITIAL_BALANCE = 100
+
   def initialize(name)
     @name = name
-    create_hand
+    @balance = INITIAL_BALANCE
+    @hand = Hand.new(false)
     @finished = false
     validate!
   end
@@ -23,6 +26,14 @@ class Player
     @finished = true
   end
 
+  def make_bet(bet)
+    @balance -= bet
+  end
+
+  def take_money(bet)
+    @balance += bet
+  end
+
   private
 
   def validate!
@@ -38,6 +49,6 @@ class Player
   end
 
   def create_hand
-    @hand = is_dealer?(@name) ? Hand.new(true) : Hand.new(false)
+    @hand = Hand.new(false)
   end
 end

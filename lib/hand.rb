@@ -8,9 +8,9 @@ class Hand
   end
 
   def add_card(card)
-    value = card.rank == 'a' ? manage_ace_value(score) : card.value
     @cards << card
-    @score += value
+    @score += card.value
+    check_aces if @score > 21
   end
 
   def closed?
@@ -25,7 +25,7 @@ class Hand
 
   attr_reader :closed_hand
 
-  def manage_ace_value(score)
-    score + 11 > 21 && score + 1 < 21 ? 1 : 11
+  def check_aces
+    @cards.each { |card| @score -= 10 if card.rank == 'a' }
   end
 end
