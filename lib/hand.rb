@@ -10,7 +10,7 @@ class Hand
   def add_card(card)
     @cards << card
     @score += card.value
-    @score += 10 if card.rank == 'a' && @score < 12
+    @score += 10 if overdraw_with_ace?(card.rank)
   end
 
   def closed?
@@ -24,4 +24,9 @@ class Hand
   private
 
   attr_reader :closed_hand
+
+  def overdraw_with_ace?(rank)
+    return false if rank != 'a'
+    @score < 12 # 21 - Default ace value(1) - Additional ace value(10)
+  end
 end
