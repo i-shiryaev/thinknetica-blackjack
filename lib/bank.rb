@@ -12,8 +12,8 @@ class Bank
   end
 
   def undo_bets(player, dealer)
-    player.undo_bet(BET)
-    dealer.undo_bet(BET)
+    player.take_money(BET)
+    dealer.take_money(BET)
     clear_bank!
   end
 

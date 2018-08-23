@@ -30,8 +30,8 @@ class Player
     @balance -= bet
   end
 
-  def take_money(bet)
-    @balance += bet
+  def take_money(value)
+    @balance += value
   end
 
   private

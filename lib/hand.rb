@@ -10,7 +10,7 @@ class Hand
   def add_card(card)
     @cards << card
     @score += card.value
-    check_aces if @score > 21
+    @score += 10 if card.rank == 'a' && @score < 12
   end
 
   def closed?
@@ -24,8 +24,4 @@ class Hand
   private
 
   attr_reader :closed_hand
-
-  def check_aces
-    @cards.each { |card| @score -= 10 if card.rank == 'a' }
-  end
 end
