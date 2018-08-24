@@ -130,7 +130,7 @@ class MainMenu
 
   def add_card
     player.take_card(deal_card)
-    if busted?(player.hand.score) || player.hand.score >= 20
+    if busted?(player.hand.score) || player.hand.score >= 19
       player_finish_turn
       return false
     end
@@ -176,7 +176,7 @@ class MainMenu
       player.take_card(deal_card)
       dealer.take_card(deal_card)
     end
-    player_finish_turn if player.hand.score >= 20
+    player_finish_turn if player.hand.score >= 19
   end
 
   def deal_card
@@ -187,8 +187,8 @@ class MainMenu
     @deck = Deck.new
     @player_finished = false
     @dealer_finished = false
-    player.prepare_for_round
-    dealer.prepare_for_round
+    player.create_hand
+    dealer.create_hand
   end
 
   def player_finish_turn

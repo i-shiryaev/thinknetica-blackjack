@@ -5,12 +5,14 @@ class Hand
     @closed_hand = closed_hand
     @cards = []
     @score = 0
+    @aces_amount = 0
   end
 
   def add_card(card)
     @cards << card
     @score += card.value
-    @score += 10 if overdraw_with_ace?(card.rank)
+    @aces_amount += 1 if is_ace?(card.rank)
+    change_aces_value if score > 21 && aces_amount > 0
   end
 
   def closed?
@@ -23,10 +25,16 @@ class Hand
 
   private
 
-  attr_reader :closed_hand
+  attr_reader :closed_hand, :aces_amount
 
-  def overdraw_with_ace?(rank)
-    return false if rank != 'a'
-    @score < 12 # 21 - Default ace value(1) - Additional ace value(10)
+  def change_aces_value
+    aces_amount.times do
+      @score -= 10
+      @aces_amount -= 1
+    end
+  end
+
+  def is_ace?(rank)
+    rank == 'a'
   end
 end

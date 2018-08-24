@@ -10,6 +10,6 @@ class Dealer < Player
   end
 
   def create_hand
-    @hand = Hand.new(true)
+    super(true)
   end
 end
