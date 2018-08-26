@@ -13,6 +13,7 @@ class MainMenu
 
   def start_game
     create_player
+    check_dealer_balance
     gameplay_loop
   end
 
@@ -65,7 +66,7 @@ class MainMenu
     begin
       @player = Player.new(name)
     rescue StandardError => e
-      show_error(e)
+      helper.show_error(e)
       name = helper.user_input
       retry
     end
@@ -85,6 +86,10 @@ class MainMenu
     else
       player_lost
     end
+  end
+
+  def check_dealer_balance
+    @dealer = Dealer.new if dealer.balance <= 0
   end
 
   def player_won
@@ -130,7 +135,7 @@ class MainMenu
 
   def add_card
     player.take_card(deal_card)
-    if busted?(player.hand.score) || player.hand.score >= 19
+    if busted?(player.hand.score) || player.hand.score > 20
       player_finish_turn
       return false
     end
@@ -158,7 +163,7 @@ class MainMenu
   def dealer_decision
     if dealer.hand.score > player.hand.score && player_finished
       dealer_passed
-    elsif dealer.hand.score <= 17
+    elsif dealer.hand.score < 17
       helper.message :dealer_take_card
       dealer.take_card(deal_card)
     else
@@ -176,7 +181,7 @@ class MainMenu
       player.take_card(deal_card)
       dealer.take_card(deal_card)
     end
-    player_finish_turn if player.hand.score >= 19
+    player_finish_turn if player.hand.score > 20
   end
 
   def deal_card
