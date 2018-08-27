@@ -10,12 +10,12 @@ class Hand
 
   def add_card(card)
     @cards << card
+    @score += card.value
     @aces_amount += 1 if is_ace?(card.rank)
-    if is_blackjack?
-      @score = 21
+    if starting_aces? && aces_amount > 1
+      @score -= 10
       return false
     end
-    @score += card.value
     change_aces_value if score > 21 && aces_amount > 0
   end
 
@@ -42,7 +42,7 @@ class Hand
     rank == 'a'
   end
 
-  def is_blackjack?
-    aces_amount == 2 && cards.size == 2
+  def starting_aces?
+    aces_amount == cards.size
   end
 end
